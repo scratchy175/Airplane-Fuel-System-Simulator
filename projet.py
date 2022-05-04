@@ -4,7 +4,8 @@ from tkinter import *
 
 
 class Composant(object):
-    def __init__(self,nom,points):
+    def __init__(self,canvas,nom,points):
+        self.canvas = canvas
         self.etat = 0
         self.nom = nom
         self.points = points[self.nom]
@@ -17,34 +18,33 @@ class Composant(object):
 
 class Tank(Composant):
     
-    def __init__(self,nom,points,color):
-        Composant.__init__(self,nom,points)
+    def __init__(self,canvas,nom,points,color):
+        Composant.__init__(self,canvas,nom,points)
         self.color = color
-        self.canvas = canvas
         if self.nom == "Tank2":
-            self.rectangle = canvas.create_rectangle(self.points["R"], fill=self.color, outline=self.color, width=3)
+            self.rectangle = self.canvas.create_rectangle(self.points["R"], fill=self.color, outline=self.color, width=3)
             self.forme= self.rectangle
         else:
-            self.polygone = canvas.create_polygon(self.points["P"], fill=self.color, outline=self.color, width=3)
+            self.polygone = self.canvas.create_polygon(self.points["P"], fill=self.color, outline=self.color, width=3)
             self.forme= self.polygone
-        canvas.tag_bind(self.forme, "<Button-1>", self.setEtat)
-        canvas.pack()
-        self.text = canvas.create_text(self.points["T"], text=self.nom, font=("Arial", 20,'bold'))
-        self.rectangleP = canvas.create_rectangle(self.points["R2"], width=2)
+        self.canvas.tag_bind(self.forme, "<Button-1>", self.change_etat)
+        self.canvas.pack()
+        self.text = self.canvas.create_text(self.points["T"], text=self.nom, font=("Arial", 20,'bold'))
+        self.rectangleP = self.canvas.create_rectangle(self.points["R2"], width=2)
         
         
-    def getEtat(self):
+    def get_etat(self):
         if self.etat == 0:
             return "vide"
         elif self.etat == 1:
             return "plein"
 
-    def setEtat(self,event):
+    def change_etat(self,event):
         if self.etat == 0:
-            canvas.itemconfig(self.forme, fill="#0269A4")
+            self.canvas.itemconfig(self.forme, fill="#0269A4")
             self.etat = 1
         elif self.etat == 1:
-            canvas.itemconfig(self.forme, fill=self.color)
+            self.canvas.itemconfig(self.forme, fill=self.color)
             self.etat = 0
     
     def remplir(self):
@@ -55,29 +55,29 @@ class Tank(Composant):
         print("bite")
 
 class Vanne(Composant):
-    def __init__(self,frame,nom,points):
-        Composant.__init__(self,nom,points)
+    def __init__(self,canvas,frame,nom,points):
+        Composant.__init__(self,canvas,nom,points)
         self.frame = frame
 
-        self.text = canvas.create_text(self.points["T"], text=self.nom, font=("Arial",20,'bold'))
-        self.cercle = canvas.create_oval(self.points["C"],fill="Black")
-        self.polygone = canvas.create_polygon(self.points["P2"], fill="White")
+        self.text = self.canvas.create_text(self.points["T"], text=self.nom, font=("Arial",20,'bold'))
+        self.cercle = self.canvas.create_oval(self.points["C"],fill="Black")
+        self.polygone = self.canvas.create_polygon(self.points["P2"], fill="White")
 
         self.x1, self.y1 = self.points["P2"][0], self.points["P2"][1]
         self.x2, self.y2 = self.points["P2"][4], self.points["P2"][5]
         self.centre = ((self.x1 + self.x2) / 2, (self.y1 + self.y2) / 2)
         self.counter = 1
 
-        self.button = Button(self.frame, text=self.nom,font= ("Arial",20,"bold"),height = 2,width = 2, command=self.setEtat,bg="#880808")
+        self.button = Button(self.frame, text=self.nom,font= ("Arial",20,"bold"),height = 2,width = 2, command=self.change_etat,bg="#880808")
         self.button.pack(fill=X, side=LEFT,expand=True, padx=50)
     
-    def getEtat(self):
+    def get_etat(self):
         if self.etat == 0:
             return "fermé"
         elif self.etat == 1:
             return "ouvert"
 
-    def setEtat(self):
+    def change_etat(self):
         #self.rt()
         if self.etat == 0:
             self.button.config(bg="Green")
@@ -110,10 +110,10 @@ class Vanne(Composant):
             self.new_square = self.rotation(self.points["P2"], self.counter, self.centre)
         elif self.etat == 0:
             self.new_square = self.rotation(self.points["P2"], -self.counter, self.centre)
-        canvas.coords(self.polygone, self.new_square)
+        self.canvas.coords(self.polygone, self.new_square)
         if self.counter<90:
             self.counter+=1
-            canvas.after(1, self.rt)
+            self.canvas.after(1, self.rt)
         else:
             self.counter = 1
             self.points["P2"] = self.new_square
@@ -125,24 +125,26 @@ class Vanne(Composant):
         self.etat = 0"""
 
 class Pompe(Composant):
-    def __init__(self,frame,nom,points,nature="Normal"):
-        Composant.__init__(self,nom,points)
+    def __init__(self,canvas,frame,nom,points,nature="Normal"):
+        Composant.__init__(self,canvas,nom,points)
         self.frame = frame
-        #self.canvas = canvas
         self.nature = nature
-        self.cercle = canvas.create_oval(self.points["C"],fill="Black")
-        self.text = canvas.create_text(self.points["T"], text=self.nom, fill="White", font=("Arial",15,'bold'))
-        canvas.tag_bind(self.text, "<Button-1>", self.en_panne)
-        canvas.tag_bind(self.cercle, "<Button-1>", self.en_panne)
+        self.cercle = self.canvas.create_oval(self.points["C"],fill="Black")
+        self.text = self.canvas.create_text(self.points["T"], text=self.nom, fill="White", font=("Arial",15,'bold'))
+        self.canvas.tag_bind(self.text, "<Button-1>", self.en_panne)
+        self.canvas.tag_bind(self.cercle, "<Button-1>", self.en_panne)
         if nature == "Secours":
-            self.button = Button(self.frame, text=self.nom,font= ("Arial",20,"bold"), height = 2,width = 2, command=self.setEtat,bg="#880808",activebackground="Green")
+            self.button = Button(self.frame, text=self.nom,font= ("Arial",20,"bold"), height = 2,width = 2, command=self.change_etat,bg="#880808",activebackground="Green")
             self.button.pack(fill=X, side=LEFT,expand=True, padx=50)
     
 
-    def getEtat(self):
+    def get_etat(self):
         return self.etat
 
-    def setEtat(self): #que si pompe de secours
+    def get_nature(self):
+        return self.nature
+
+    def change_etat(self): #que si pompe de secours
 
         if self.etat == 0:
             self.button.config(bg="Green",activebackground="#880808")
@@ -150,17 +152,17 @@ class Pompe(Composant):
             self.clignoter()
         elif self.etat == 1:
             self.button.config(bg="#880808")
-            canvas.itemconfig(self.cercle, fill="Black")
+            self.canvas.itemconfig(self.cercle, fill="Black")
             self.etat = 0
     
     def clignoter(self): #faire clignoter si pompe en panne
         if self.etat == 1:
-            if canvas.itemcget(self.cercle, 'fill') == "Black":
-                canvas.itemconfig(self.cercle, fill="Green")
+            if self.canvas.itemcget(self.cercle, 'fill') == "Black":
+                self.canvas.itemconfig(self.cercle, fill="Green")
             else:
-                canvas.itemconfig(self.cercle, fill="Black")
+                self.canvas.itemconfig(self.cercle, fill="Black")
             
-            canvas.after(500, self.clignoter)
+            self.canvas.after(500, self.clignoter)
 
     def allumer(self):
         self.etat = 1
@@ -171,75 +173,39 @@ class Pompe(Composant):
     def en_panne(self,event):
         if self.etat == -1:
             self.button.config(bg="#880808",state=NORMAL)
-            canvas.itemconfig(self.cercle, fill="Black")
+            self.canvas.itemconfig(self.cercle, fill="Black")
             self.etat = 0
         else:
             self.button.config(bg="Grey",state=DISABLED)
-            canvas.itemconfig(self.cercle, fill="Orange")
+            self.canvas.itemconfig(self.cercle, fill="Orange")
             self.etat = -1
 
 class Moteur(Composant):
-    def __init__(self,nom,points):
-        Composant.__init__(self,nom,points)
-        self.rectangle = canvas.create_rectangle(self.points["R"], fill="Grey", outline="Grey")
-        self.text = canvas.create_text(self.points["T"], text=self.nom, font=("Arial",20,'bold'))
+    def __init__(self,canvas,nom,points):
+        Composant.__init__(self,canvas,nom,points)
+        self.rectangle = self.canvas.create_rectangle(self.points["R"], fill="Grey", outline="Grey")
+        self.text = self.canvas.create_text(self.points["T"], text=self.nom, font=("Arial",20,'bold'))
 
 class Flux(object):
-    def __init__(self,nom,points):
+    def __init__(self,canvas,nom,points):
+        self.canvas = canvas
         self.etat = 0
         self.nom = nom
         self.points = points["F"]
-        self.line = canvas.create_line(self.points[self.nom], fill="Black", width=2)
+        self.line = self.canvas.create_line(self.points[self.nom], fill="Black", width=2)
 
     def change_etat(self):
         if self.etat == 0:
-            canvas.itemconfig(self.line, fill="Yellow", width=5)
+            self.canvas.itemconfig(self.line, fill="Yellow", width=5)
             self.etat = 1
         elif self.etat == 1:
-            canvas.itemconfig(self.line, fill="Black", width=2)
+            self.canvas.itemconfig(self.line, fill="Black", width=2)
             self.etat = 0
 
-def create_window(cv):
-    global window
-    window = Tk()
-    window.title("Tableau de bord du pilote")
-    window.geometry("1000x500+300+300")
-    window.iconbitmap("plane.ico")
-    
-    """frame = Frame(window, bg="#186db6")
-    frame.pack(side= TOP, expand=True, fill=BOTH)
-    frame2 = Frame(window, bg="#011B56")
-    frame2.pack(side= TOP, expand=True, fill=BOTH)
-    frame3 = Frame(window, bg="#0269A4")
-    frame3.pack(side= TOP, expand=True, fill=BOTH)
-    window2 = Toplevel(window)
-    window2.title("Etat du système de carburant")
-    window2.geometry("600x600+1500+250")
-    window2.iconbitmap("plane.ico")
-    canvas = Canvas(window2, width=600, height=600)
-    canvas.pack(expand=True)"""
-    
-    """Tank1 = Tank("Tank1",dico,"Orange",canvas)
-    Tank2 = Tank("Tank2",dico,"Green",canvas)
-    Tank3 = Tank("Tank3",dico,"Yellow",canvas)"""
-    #window.mainloop()
-    return window
+def create_window(root,dico):
+    global liste_flux
 
-
-"""root = Tk()
-root.title("Login")
-root.geometry("500x500")
-b = Button(root, text="Quitter", command=(create_window,root))
-b.pack()
-w2 = window
-w2.title("rtdfyghbjk")"""
-
-
-if __name__ == "__main__":
-
-
-    
-    #window.title("Tableau de bord du pilote")
+    root.destroy()
     window = Tk()
     window.title("Tableau de bord du pilote")
     window.geometry("1000x500+300+300")
@@ -257,9 +223,64 @@ if __name__ == "__main__":
     canvas = Canvas(window2, width=600, height=600, bg="#0269A4")
     canvas.pack(expand=True)
 
+    Tank1 = Tank(canvas,"Tank1",dico,"Orange")
+    Tank2 = Tank(canvas,"Tank2",dico,"Green")
+    Tank3 = Tank(canvas,"Tank3",dico,"Yellow")
+    P11 = Pompe(canvas,frame2,"P11",dico,"Normal")
+    P12 = Pompe(canvas,frame2,"P12",dico,"Secours")
+    P21 = Pompe(canvas,frame2,"P21",dico,"Normal")
+    P22 = Pompe(canvas,frame2,"P22",dico,"Secours")
+    P31 = Pompe(canvas,frame2,"P31",dico,"Normal")
+    P32 = Pompe(canvas,frame2,"P32",dico,"Secours")
+    VT12 = Vanne(canvas,frame,"VT12",dico)
+    VT23 = Vanne(canvas,frame,"VT23",dico)
+    V12 = Vanne(canvas,frame3,"V12",dico)
+    V13 = Vanne(canvas,frame3,"V13",dico)
+    V23 = Vanne(canvas,frame3,"V23",dico)
+    M1 = Moteur(canvas,"M1",dico)
+    M2 = Moteur(canvas,"M2",dico)
+    M3 = Moteur(canvas,"M3",dico)
+    liste_flux = [Flux(canvas,"L"+str(i),dico) for i in range(1,len(dico["F"])+1)]
 
+    for i in range(8):
+        liste_flux[i].change_etat()
+    """liste_flux[0].change_etat()
+    liste_flux[1].change_etat()
+    liste_flux[2].change_etat()"""
+    window.mainloop()
+    return liste_flux
+
+
+
+
+
+if __name__ == "__main__":
+
+
+    root = Tk()
+    root.title("Login")
+    root.geometry("500x500")
+    root.iconbitmap("plane.ico")
+    frame = Frame(root,width=500,height=500, bg="#0269A4")
+    #frame.pack(side= TOP, expand=True, fill=BOTH)
     
-
+    username = Label(frame, text="Username", bg="#0269A4", fg="Black", font=("Arial",20,'bold'))
+    #username.grid(row=0, column=2)
+    username.pack()
+    
+    #frame.pack(expand=True)
+    username_entry = Entry(frame, bg="White", fg="Black", font=("Arial",20,'bold'))
+    #username_entry.grid(row=1, column=2)
+    username_entry.pack()
+    password = Label(frame, text="Password", bg="#0269A4", fg="Black", font=("Arial",20,'bold'))
+    password.pack()
+    password_entry = Entry(frame, bg="White", fg="Black", font=("Arial",20,'bold'))
+    password_entry.pack()
+    login_button = Button(frame, text="Login", command= lambda:create_window(root,dico))
+    login_button.pack()
+    register_button = Button(frame, text="Login", command= lambda:create_window(root,dico))
+    register_button.pack()
+    frame.pack(expand=True)
 
     dico = {"Tank1":{"P":(25, 180, 25, 90, 145, 30, 145, 180),"T":(90,110),"R2":(50, 130, 145, 180)},
             "Tank2":{"R":(240, 30, 360, 180),"T":(300,110),"R2":(250, 130, 350, 180)},
@@ -291,41 +312,16 @@ if __name__ == "__main__":
                 "L15":(145, 110, 162, 110),"L16":(222, 110, 240, 110),
                 "L17":(360, 110, 378, 110),"L18":(438, 110, 455, 110),}
             }
-
-
-    Tank1 = Tank("Tank1",dico,"Orange")
-    Tank2 = Tank("Tank2",dico,"Green")
-    Tank3 = Tank("Tank3",dico,"Yellow")
-    P11 = Pompe(frame2,"P11",dico,"Normal")
-    P12 = Pompe(frame2,"P12",dico,"Secours")
-    P21 = Pompe(frame2,"P21",dico,"Normal")
-    P22 = Pompe(frame2,"P22",dico,"Secours")
-    P31 = Pompe(frame2,"P31",dico,"Normal")
-    P32 = Pompe(frame2,"P32",dico,"Secours")
-    VT12 = Vanne(frame,"VT12",dico)
-    VT23 = Vanne(frame,"VT23",dico)
-    V12 = Vanne(frame3,"V12",dico)
-    V13 = Vanne(frame3,"V13",dico)
-    V23 = Vanne(frame3,"V23",dico)
-    M1 = Moteur("M1",dico)
-    M2 = Moteur("M2",dico)
-    M3 = Moteur("M3",dico)
-    """L1 = Flux("L1",dico)
-    L2 = Flux("L2",dico)
-    L3 = Flux("L3",dico)
-    L4 = Flux("L4",dico)"""
-    liste_flux = []
-    for i in range(1,len(dico["F"])+1):
-        L = Flux("L"+str(i),dico)
-        liste_flux.append(L)
-
-    liste_flux[0].change_etat()
-    liste_flux[1].change_etat()
-    liste_flux[2].change_etat()
+ 
     ##panne pompes et vidange reservoirs aleatoires ou pas ?
     # Si oui alors faire un systeme de bouton qui genere une panne aleatoire d'une ou plusieurs pompes et d'un ou plusieurs reservoirs
-    
 
-    window.mainloop()
+    # voir pour utiliser une classe pour la creation de la nouvelle fenetre 
+    #crée le menu de login
+    #faire la gestion des flux
+    #split en plusieurs fichiers
+
+    #window.mainloop()
+    root.mainloop()
 
 
