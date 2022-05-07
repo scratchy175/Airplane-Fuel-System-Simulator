@@ -1,3 +1,4 @@
+from datetime import datetime
 from Composants import *
 from Config import *
 import random
@@ -6,7 +7,7 @@ from tkinter import messagebox
 
 
 
-def set_systeme(window,canvas,frame,frame2,frame3,mode=None):
+def set_systeme(window,username,canvas,frame,frame2,frame3,mode=None):
     global Tank1,Tank2,Tank3,P11,P12,P21,P22,P31,P32,VT12,VT23,V12,V13,V23,M1,M2,M3
     global liste_flux,liste_pompe,liste_tank,liste_vanne,liste_moteur
     Tank1 = Tank(canvas,"Tank1",dico,"Orange")
@@ -42,7 +43,7 @@ def set_systeme(window,canvas,frame,frame2,frame3,mode=None):
 
         compteur = 0
         score = 0
-        window.after(500, lambda: boucle(window,compteur,score))
+        window.after(500, lambda: boucle(window,username,compteur,score))
 
 
 def eteindre_flux_moteur2():
@@ -224,31 +225,30 @@ def genere_panne(liste_tank,liste_pompe):#remettre par defaut a chaque panne res
 
 
 
-def boucle (window,compteur,score):
+def boucle (window,username,compteur,score):
     if compteur != 3:
         if M1.get_etat() and M2.get_etat() and M3.get_etat():
             compteur+=1
             
             score += resolution()
             print(score)
-            return
             reset()
             genere_panne(liste_tank,liste_pompe)
             print(score)
-            window.after(500, boucle, window,compteur, score)
+            window.after(500, boucle, window,username,compteur, score)
         else:
     
             eteindre_flux_moteur2()
             reparer()
             allumer_vanne()
             
-            window.after(500, boucle, window,compteur,score)
+            window.after(500, boucle, window,username,compteur,score)
     else:
-        messagebox.showinfo("Fin", "Votre score : {}".format(score))
-        #print(username_entry)
-        #ajouter la note 
-        #prendre le temps au debut du programme et comparé au temps a la fin et en fonction attribuer une note de 0 a 10
-        #ecrire la note dans le .txt
+        messagebox.showinfo("Fin", "Pseudo : {0}, Votre score : {1}".format(username,score))
+        if username:
+            file = open("Users/" + str(username) + ".txt", "a")
+            file.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S")+ " : " + str(score) +"\n")
+            file.close()
 
 
 def allumer_vanne():

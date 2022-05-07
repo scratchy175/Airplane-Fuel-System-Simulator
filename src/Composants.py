@@ -195,6 +195,13 @@ class Pompe(Composant):
     def get_alimente(self):
         return self.alimente
 
+
+    def en_panne(self,event):
+        if self.nature == "Secours":
+            self.button.config(state=DISABLED)
+        self.canvas.itemconfig(self.cercle, fill="Orange")
+        self.etat = -1
+
     def reset_pompe(self):
         if self.nature == "Secours": 
             self.set_alimente(None)
@@ -204,23 +211,7 @@ class Pompe(Composant):
         elif self.nature == "Normal":
             self.canvas.itemconfig(self.cercle, fill="Green")
             self.etat = 1
-
-    def en_panne(self,event):
-        if self.nature == "Secours":
-            self.button.config(state=DISABLED)
-        self.canvas.itemconfig(self.cercle, fill="Orange")
-        self.etat = -1
-    """def en_panne(self,event):
-        if self.etat == -1:
-            if self.nature == "Secours":
-                self.button.config(image=self.image_off, state=NORMAL)
-            self.canvas.itemconfig(self.cercle, fill="Black")
-            self.etat = 0
-        else:
-            if self.nature == "Secours":
-                self.button.config(state=DISABLED)
-            self.canvas.itemconfig(self.cercle, fill="Orange")
-            self.etat = -1"""
+    
 
 class Moteur(Composant):
     def __init__(self,canvas,nom,points):

@@ -56,6 +56,7 @@ def login_menu():
         root.mainloop()
 
 def connexion(event):
+    global connexion_username
     connexion_username = username_entry.get()
     connexion_password = password_entry.get()
     username_entry.delete(0, END)
@@ -120,6 +121,8 @@ def create_window():
     canvas = Canvas(window2, width=600, height=600, bg="#0269A4")
     canvas.pack(expand=True)
 
-    set_systeme(window,canvas,frame,frame2,frame3,"setup")
-
+    if admin_mode:
+        set_systeme(window,None,canvas,frame,frame2,frame3,"setup")
+    else:
+        set_systeme(window,connexion_username,canvas,frame,frame2,frame3,"setup")
     window.mainloop()
