@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from Composants import *
 from Gui import *
 
@@ -6,15 +5,19 @@ from Gui import *
 login_menu()
 
 
-    ##panne pompes et vidange reservoirs aleatoires ou pas ?
-    # Si oui alors faire un systeme de bouton qui genere une panne aleatoire d'une ou plusieurs pompes et d'un ou plusieurs reservoirs
-
-    #faire la gestion des flux + fleche qui parcours le flux
+    #faire la gestion des flux                                                                  
     #faire tout le core du programe avec les conditions ou le faire ????
+
+
+
+
     #fin du programme avec attribution de la note
 
 
     
 
 
- 
+
+ #j'ai ouvert V13 et allumé P12 et caa allumé M1 et M3 en mm temps 1 pompe peut alimenter plusieurs moteurs
+ # faut retirer les liens des pompes, peut etre dans la fcontion allume vanne
+ #car ca enlever tout les liens de pompes

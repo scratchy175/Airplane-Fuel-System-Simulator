@@ -9,7 +9,10 @@ class Composant(object):
         self.nom = nom
         self.points = points[self.nom]
 
-    def getEtat(self):
+    def get_name(self):
+        return self.nom
+
+    def get_etat(self):
         return self.etat
 
     """def setEtat(self,etat):
@@ -20,6 +23,7 @@ class Tank(Composant):
     def __init__(self,canvas,nom,points,color):
         Composant.__init__(self,canvas,nom,points)
         self.color = color
+        self.etat = 1
         if self.nom == "Tank2":
             self.rectangle = self.canvas.create_rectangle(self.points["R"], fill=self.color, outline=self.color, width=3)
             self.forme= self.rectangle
@@ -31,12 +35,8 @@ class Tank(Composant):
         self.text = self.canvas.create_text(self.points["T"], text=self.nom, font=("Arial", 20,'bold'))
         self.rectangleP = self.canvas.create_rectangle(self.points["R2"], width=2)
         
-        
-    def get_etat(self):
-        if self.etat == 0:
-            return "vide"
-        elif self.etat == 1:
-            return "plein"
+    """def get_etat(self):
+        return self.etat"""
 
     def change_etat(self,event):
         if self.etat == 0:
@@ -47,11 +47,12 @@ class Tank(Composant):
             self.etat = 0
     
     def remplir(self):
+        self.canvas.itemconfig(self.forme, fill=self.color)
         self.etat = 1
     
     def vider(self):
+        self.canvas.itemconfig(self.forme, fill="#0269A4")
         self.etat = 0
-        print("bite")
 
 class Vanne(Composant):
     def __init__(self,canvas,frame,nom,points):
@@ -144,9 +145,7 @@ class Pompe(Composant):
         elif self.nature == "Normal":
             self.allumer()
 
-    
-    def get_etat(self):
-        return self.etat
+
 
     def get_nature(self):
         return self.nature
@@ -157,13 +156,13 @@ class Pompe(Composant):
             self.canvas.itemconfig(self.cercle, fill="Green")
             self.button.config(image=self.image_on)
             self.etat = 1
-            #self.clignoter()
+            self.clignoter()
         elif self.etat == 1:
             self.button.config(image=self.image_off)
             self.canvas.itemconfig(self.cercle, fill="Black")
             self.etat = 0
     
-    def clignoter(self): #faire clignoter si pompe en panne
+    def clignoter(self):
         if self.etat == 1:
             if self.canvas.itemcget(self.cercle, 'fill') == "Black":
                 self.canvas.itemconfig(self.cercle, fill="Green")
@@ -180,7 +179,14 @@ class Pompe(Composant):
         self.canvas.itemconfig(self.cercle, fill="Black")
         self.etat = 0
 
+
+
     def en_panne(self,event):
+        if self.nature == "Secours":
+            self.button.config(state=DISABLED)
+        self.canvas.itemconfig(self.cercle, fill="Orange")
+        self.etat = -1
+    """def en_panne(self,event):
         if self.etat == -1:
             if self.nature == "Secours":
                 self.button.config(image=self.image_off, state=NORMAL)
@@ -190,7 +196,7 @@ class Pompe(Composant):
             if self.nature == "Secours":
                 self.button.config(state=DISABLED)
             self.canvas.itemconfig(self.cercle, fill="Orange")
-            self.etat = -1
+            self.etat = -1"""
 
 class Moteur(Composant):
     def __init__(self,canvas,nom,points):
@@ -210,6 +216,15 @@ class Moteur(Composant):
             self.canvas.itemconfig(self.rectangle, fill="Grey")
             self.etat = 0
 
+    def eteindre(self):
+        self.canvas.itemconfig(self.rectangle, fill="Grey")
+        self.etat = 0
+
+    def allumer(self):
+        self.canvas.itemconfig(self.rectangle, fill="Green")
+        self.etat = 1
+    
+
 class Flux(object):
     def __init__(self,canvas,nom,points):
         self.canvas = canvas
@@ -225,3 +240,14 @@ class Flux(object):
         elif self.etat == 1:
             self.canvas.itemconfig(self.line, fill="Black", width=2)
             self.etat = 0
+
+    def eteindre(self):
+        self.canvas.itemconfig(self.line, fill="Black", width=2)
+        self.etat = 0
+    
+    def allumer(self):
+        self.canvas.itemconfig(self.line, fill="Red", width=5)
+        self.etat = 1
+
+
+    

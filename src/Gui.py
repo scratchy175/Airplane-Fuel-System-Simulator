@@ -1,5 +1,6 @@
 
 import random
+from tkinter import messagebox
 from Config import *
 from Composants import *
 
@@ -27,7 +28,7 @@ def login_menu():
         frame.place(x=0, y=0)
 
         login = Label(frame, text="Connexion",fg="White", font=("Roboto",25), bg="#2d2d2d")
-        login.place(x=150, y=50)
+        login.place(x=175, y=50)
 
         username = Label(frame, text="Nom d'utilisateur",bg="#2d2d2d",fg="White", font=("Roboto",15))
         username.place(x=100, y=150)
@@ -68,7 +69,7 @@ def connexion(event):
                 file = open("Users/" + str(connexion_username) + ".txt", "r")
                 lines = file.readline().split(":")
                 if lines[1].strip("\n") == str(connexion_password):
-                    logged = Label(root, text="Connexion réussite.", fg="green",bg="#2d2d2d", font=("Arial",10))
+                    logged = Label(root, text="Connexion réussie.", fg="green",bg="#2d2d2d", font=("Arial",10))
                     logged.place(x=100, y=400)
                     root.after(500, lambda: create_window(dico))
                     return
@@ -89,7 +90,7 @@ def inscription():
             file = open("Users/" + str(inscription_username) + ".txt", "w")
             file.write("Mot de passe:" + str(inscription_password)+"\n")
             file.close()
-            sucess = Label(root, text="Inscription réussite.", fg="green",bg="#2d2d2d", font=("Arial",10))
+            sucess = Label(root, text="Inscription réussie.", fg="green",bg="#2d2d2d", font=("Arial",10))
             sucess.place(x=100, y=400)
             sucess.after(1000, sucess.destroy)
         else:
@@ -124,7 +125,8 @@ def create_window(dico):
 
 
 
-    
+    global Tank1,Tank2,Tank3,P11,P12,P21,P22,P31,P32,VT12,VT23,V12,V13,V23,M1,M2,M3
+    global liste_flux
     Tank1 = Tank(canvas,"Tank1",dico,"Orange")
     Tank2 = Tank(canvas,"Tank2",dico,"DarkGreen")
     Tank3 = Tank(canvas,"Tank3",dico,"Yellow")
@@ -151,34 +153,219 @@ def create_window(dico):
     for i in range(8):
         liste_flux[i].change_etat()
 
-    genere_panne(liste_tank,liste_pompe)
+    """Tank3.vider()
+    P31.en_panne(event=None)
+    P12.en_panne(event=None)
+    M3.eteindre()"""
+    genere_panne(liste_tank,liste_pompe,liste_flux)
     for i in range(len(liste_pompe)):
-        print(liste_pompe[i].get_etat())
+        pass
+        #print(liste_pompe[i].get_etat())
     
-    M1.change_etat()
+    #M1.change_etat()
 
-
-    #window.after(1000, lambda: boucle(window,liste_moteur,liste_tank,liste_pompe))
+    compteur = 0
+    window.after(500, lambda: boucle(window,compteur, liste_moteur,liste_tank,liste_pompe,liste_vanne,liste_flux))
     window.mainloop()
 
+def eteindre_flux_moteur():
+    if not Tank1.get_etat() or P11.get_etat()== -1 or (P12.get_etat()== 0 and P11.get_etat() == -1):
+        M1.eteindre()
+        liste_flux[0].eteindre()
+        liste_flux[1].eteindre()
+        liste_flux[2].eteindre()
+    
+    if not Tank2.get_etat() or P21.get_etat()== -1 or (P22.get_etat()== 0 and P21.get_etat() == -1):
+        M2.eteindre()
+        liste_flux[3].eteindre()
+        liste_flux[4].eteindre()
 
-def genere_panne(liste_tank,liste_pompe):
+    if not Tank3.get_etat() or P31.get_etat()== -1 or (P32.get_etat()== 0 and P31.get_etat() == -1):
+        M3.eteindre()
+        liste_flux[5].eteindre()
+        liste_flux[6].eteindre()
+        liste_flux[7].eteindre()
+
+
+def genere_panne(liste_tank,liste_pompe, liste_flux):#remettre par defaut a chaque panne resolu /boucle
     panne_tank = random.choice(liste_tank)
-    rand_int = random.randint(1,4)
-    for i in range(rand_int):
-        panne_pompe = random.choice(liste_pompe)
-        panne_pompe.en_panne(event = None)
-    panne_tank.change_etat(event=None)
+    rand_int = random.randint(1,3)
+    liste_panne = random.sample(range(0,len(liste_pompe)-1),rand_int)
+    for val in liste_panne:
+        liste_pompe[val].en_panne(event=None)
+        print(liste_pompe[val].get_name())
+    panne_tank.vider()
+    eteindre_flux_moteur()
 
-"""def boucle (window, liste_moteur, liste_tank, liste_pompe):
+
+
+def boucle (window,compteur, liste_moteur, liste_tank, liste_pompe,liste_vanne,liste_flux):
     if compteur != 10:
-        if liste_moteur[0].get_etat() and liste_moteur[1].get_etat() and liste_moteur[2].get_etat():
-            print("test")
-            
-            window.after(1000, boucle, window,liste_moteur)
+        if M1.get_etat() and M2.get_etat() and M3.get_etat():
+            compteur+=1
+            #genere_panne(liste_tank,liste_pompe,liste_flux)
+            return
+            #window.after(500, boucle, window,compteur, liste_moteur, liste_tank, liste_pompe,liste_vanne,liste_flux)
         else:
-            #compteur+=1
-            genere_panne(liste_tank,liste_pompe)
-            window.after(1000, boucle, window,liste_moteur)
+            """print("Moteur {0} {1} {2}".format(M1.get_etat(),M2.get_etat(),M3.get_etat()))
+            print("Tank {0} {1} {2}".format(Tank1.get_etat(),Tank2.get_etat(),Tank3.get_etat()))
+            print("Pompe {0} {1} {2}".format(P11.get_etat(),P12.get_etat(),P21.get_etat(),P22.get_etat(),P31.get_etat(),P32.get_etat()))"""
+            eteindre_flux_moteur()
+            reparer()
+            allumer_vanne()
+            
+            window.after(500, boucle, window,compteur, liste_moteur, liste_tank, liste_pompe,liste_vanne,liste_flux)
     else:
-        messagebox.showinfo("Fin", "Fin du programme")"""
+        messagebox.showinfo("Fin", "Fin du programme")
+        #print(username_entry)
+        #ajouter la note 
+        #prendre le temps au debut du programme et comparé au temps a la fin et en fonction attribuer une note de 0 a 10
+        #ecrire la note dans le .txt
+
+
+def allumer_vanne():
+    if VT12.get_etat():
+        liste_flux[14].allumer()
+        liste_flux[15].allumer()
+        if not Tank1.get_etat() and Tank2.get_etat():
+            Tank1.remplir()
+            
+        elif not Tank2.get_etat() and Tank1.get_etat():
+            Tank2.remplir()
+    else:
+    
+        liste_flux[14].eteindre()
+        liste_flux[15].eteindre()
+            
+    if VT23.get_etat():
+        liste_flux[16].allumer()
+        liste_flux[17].allumer()
+        
+        if not Tank2.get_etat() and Tank3.get_etat():
+            Tank2.remplir()
+            
+        elif not Tank3.get_etat() and Tank2.get_etat():
+            Tank3.remplir()
+    
+    else:
+        liste_flux[16].eteindre()
+        liste_flux[17].eteindre()
+
+
+def checkM1():
+    if not M1.get_etat():
+            if Tank1.get_etat():
+                if P11.get_etat() == 1:
+                    liste_flux[0].allumer()
+                    liste_flux[1].allumer()
+                    liste_flux[2].allumer()
+                    print("1 M1")
+                    M1.allumer()
+                    return
+                elif P11.get_etat() == -1:
+                    if P12.get_etat() == 1:
+                        liste_flux[0].allumer()
+                        liste_flux[1].allumer()
+                        liste_flux[2].allumer()
+                        M1.allumer()
+                        return
+            if Tank2.get_etat():
+                if P22.get_etat()== 1 and V12.get_etat():
+                    liste_flux[3].allumer()
+                    liste_flux[11].allumer()
+                    liste_flux[10].allumer()
+                    liste_flux[2].allumer()
+                    M1.allumer()
+                    return
+            if Tank3.get_etat():
+                if P32.get_etat() == 1 and V13.get_etat():
+                    liste_flux[5].allumer()
+                    liste_flux[9].allumer()
+                    liste_flux[8].allumer()
+                    liste_flux[1].allumer()
+                    liste_flux[2].allumer()
+                    M1.allumer()
+                    return
+
+
+def checkM2():
+    if not M2.get_etat():
+            if Tank2.get_etat():
+                if P21.get_etat() == 1:
+                    liste_flux[3].allumer()
+                    liste_flux[4].allumer()
+                    print("1 M2")
+                    M2.allumer()
+                    return
+                elif P21.get_etat() == -1:
+                    if P22.get_etat() == 1:
+                        liste_flux[3].allumer()
+                        liste_flux[4].allumer()
+                        M2.allumer()
+                        return
+            if Tank1.get_etat():
+                if P12.get_etat() == 1 and V12.get_etat():
+                    liste_flux[0].allumer()
+                    liste_flux[1].allumer()
+                    liste_flux[10].allumer()
+                    liste_flux[11].allumer()
+                    liste_flux[4].allumer()
+                    M2.allumer()
+                    return
+            if Tank3.get_etat():
+                if P32.get_etat() == 1 and V23.get_etat():
+                    liste_flux[5].allumer()
+                    liste_flux[6].allumer()
+                    liste_flux[13].allumer()
+                    liste_flux[12].allumer()
+                    liste_flux[4].allumer()
+                    M2.allumer()
+                    return
+
+
+def checkM3():
+    if not M3.get_etat():
+            if Tank3.get_etat():
+                if P31.get_etat() == 1:
+                    liste_flux[5].allumer()
+                    liste_flux[6].allumer()
+                    liste_flux[7].allumer()
+                    M3.allumer()
+                    print("1 M3")
+                    return
+                elif P31.get_etat() == -1:
+                    if P32.get_etat()== 1:
+                        liste_flux[5].allumer()
+                        liste_flux[6].allumer()
+                        liste_flux[7].allumer()
+                        M3.allumer()
+                        print("2")
+                        return
+            if Tank1.get_etat():
+                if P12.get_etat() == 1 and V13.get_etat():
+                    liste_flux[0].allumer()
+                    liste_flux[8].allumer()
+                    liste_flux[9].allumer()
+                    liste_flux[6].allumer()
+                    liste_flux[7].allumer()
+                    M3.allumer()
+                    print("3")
+                    return
+            if Tank2.get_etat():
+                if P22.get_etat() == 1 and V23.get_etat():
+                    liste_flux[3].allumer()
+                    liste_flux[12].allumer()
+                    liste_flux[13].allumer()
+                    liste_flux[7].allumer()
+                    M3.allumer()
+                    print("4")
+                    return
+
+
+def reparer():
+    checkM1()
+    checkM2()
+    checkM3()
+    
+
+
