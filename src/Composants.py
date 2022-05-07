@@ -19,7 +19,6 @@ class Composant(object):
         self.etat = etat"""
 
 class Tank(Composant):
-    
     def __init__(self,canvas,nom,points,color):
         Composant.__init__(self,canvas,nom,points)
         self.color = color
@@ -34,9 +33,7 @@ class Tank(Composant):
         self.canvas.pack()
         self.text = self.canvas.create_text(self.points["T"], text=self.nom, font=("Arial", 20,'bold'))
         self.rectangleP = self.canvas.create_rectangle(self.points["R2"], width=2)
-        
-    """def get_etat(self):
-        return self.etat"""
+
 
     def change_etat(self,event):
         if self.etat == 0:
@@ -75,8 +72,8 @@ class Vanne(Composant):
         self.button.pack(side=LEFT,expand=True)
         
     
-    def get_etat(self):
-        return self.etat
+    """def get_etat(self):
+        return self.etat"""
 
     def change_etat(self):
         if self.etat == 0:
@@ -155,12 +152,10 @@ class Pompe(Composant):
             self.allumer()
 
 
+    """def get_nature(self):
+        return self.nature"""
 
-    def get_nature(self):
-        return self.nature
-
-    def change_etat(self): #que si pompe de secours
-
+    def change_etat(self):
         if self.etat == 0:
             self.canvas.itemconfig(self.cercle, fill="Green")
             self.button.config(image=self.image_on)
@@ -220,16 +215,16 @@ class Moteur(Composant):
         self.rectangle = self.canvas.create_rectangle(self.points["R"], fill="Green", outline="Grey", width=2)
         self.text = self.canvas.create_text(self.points["T"], text=self.nom, font=("Arial",20,'bold'))
 
-    def get_etat(self):
-        return self.etat
+    """def get_etat(self):
+        return self.etat"""
 
-    def change_etat(self):
+    """def change_etat(self):
         if self.etat == 0:
             self.canvas.itemconfig(self.rectangle, fill="Green")
             self.etat = 1
         elif self.etat == 1:
             self.canvas.itemconfig(self.rectangle, fill="Grey")
-            self.etat = 0
+            self.etat = 0"""
 
     def eteindre(self):
         self.canvas.itemconfig(self.rectangle, fill="Grey")
@@ -250,13 +245,16 @@ class Flux(object):
         self.points = points["F"]
         self.line = self.canvas.create_line(self.points[self.nom], fill="Black", width=2)
 
-    def change_etat(self):
+    def get_etat(self):
+        return self.etat
+
+    """def change_etat(self):
         if self.etat == 0:
             self.canvas.itemconfig(self.line, fill="Red", width=5)
             self.etat = 1
         elif self.etat == 1:
             self.canvas.itemconfig(self.line, fill="Black", width=2)
-            self.etat = 0
+            self.etat = 0"""
 
     def eteindre(self):
         self.add_allumage(-1)
@@ -269,8 +267,16 @@ class Flux(object):
             self.canvas.itemconfig(self.line, fill="Red", width=5)
             self.etat = 1
         self.add_allumage(1)
-        
 
+    def allumer2(self):
+        self.canvas.itemconfig(self.line, fill="Red", width=5)
+        self.etat = 1
+    
+    def eteindre2(self):
+        self.canvas.itemconfig(self.line, fill="Black", width=2)
+        self.etat = 0
+
+        
     def get_allumage(self):
         return self.nb_allumage
 

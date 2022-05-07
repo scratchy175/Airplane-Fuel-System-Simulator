@@ -1,8 +1,9 @@
-from datetime import datetime
 from Composants import *
 from Config import *
+from Checking import *
 import random
 from tkinter import messagebox
+from datetime import datetime
 
 
 
@@ -37,7 +38,7 @@ def set_systeme(window,username,canvas,frame,frame2,frame3,mode=None):
         liste_flux[i].allumer()
 
     
-    if mode == "setup":
+    if mode == "setup": #sert a r ????
         genere_panne(liste_tank,liste_pompe)
 
 
@@ -216,58 +217,81 @@ def genere_panne(liste_tank,liste_pompe):#remettre par defaut a chaque panne res
     liste_panne = random.sample(range(0,len(liste_pompe)-1),rand_pompe)
     for val in liste_panne:
         liste_pompe[val].en_panne(event=None)
-        print(liste_pompe[val].get_name())
+        if debug_mode:
+            print(liste_pompe[val].get_name())
     liste_panne2 = random.sample(range(0,len(liste_tank)-1),rand_tank)
     for val in liste_panne2:
         liste_tank[val].vider()
-        print(liste_tank[val].get_name())
+        if debug_mode:
+            print(liste_tank[val].get_name())
     eteindre_flux_moteur()
 
 
 
 def boucle (window,username,compteur,score):
-    if compteur != 3:
+    if compteur != nb_series:
         if M1.get_etat() and M2.get_etat() and M3.get_etat():
             compteur+=1
-            
             score += resolution()
-            print(score)
             reset()
             genere_panne(liste_tank,liste_pompe)
-            print(score)
+            if debug_mode:
+                print(score)
             window.after(500, boucle, window,username,compteur, score)
         else:
-    
             eteindre_flux_moteur2()
             reparer()
             allumer_vanne()
             
             window.after(500, boucle, window,username,compteur,score)
     else:
-        messagebox.showinfo("Fin", "Pseudo : {0}, Votre score : {1}".format(username,score))
-        if username:
+        end(window,username,score)
+        
+        
+def end(window,username,score):
+    if username:
             file = open("Users/" + str(username) + ".txt", "a")
-            file.write(datetime.now().strftime("%d/%m/%Y %H:%M:%S")+ " : " + str(score) +"\n")
+            file.write(datetime.now().strftime("%d/%m/%Y %H:%M")+ " : " + str(score) +"\n")
             file.close()
+            reponse = messagebox.askyesno("Fin de la partie","Voulez-vous voir votre historique complet?")
+            if reponse:
+                window.destroy()
+                file = open("Users/" + str(username) + ".txt", "r")
+                next(file)
+                window_end = Tk()
+                window_end.iconbitmap("images/plane.ico")
+                window_end.title("Historique")
+                text = Text(window_end,bg="#2d2d2d",fg="White", font="Roboto 15", width=30)
+                text.pack(expand=True, fill=BOTH)
+                text.insert(END, file.read())
+                text.config(state='disabled')
+                file.close()
+                window_end.mainloop()
+            else:
+                
+                messagebox.showinfo("Fin de la partie", "Pseudo : {0}, Votre score : {1}".format(username,score))
+                window.destroy()
+    else:
+        messagebox.showinfo("Fin de la partie", "Bravo ! Votre score est de : {1} points".format(score))
+        window.destroy()
 
 
 def allumer_vanne():
-    if VT12.get_etat():
-        liste_flux[14].allumer()
-        liste_flux[15].allumer()
+    if VT12.get_etat() and (not Tank1.get_etat() or not Tank2.get_etat()):
+        liste_flux[14].allumer2()
+        liste_flux[15].allumer2()
         if not Tank1.get_etat() and Tank2.get_etat():
             Tank1.remplir()
             
         elif not Tank2.get_etat() and Tank1.get_etat():
             Tank2.remplir()
-    else:
-    
-        liste_flux[14].eteindre()
-        liste_flux[15].eteindre()
+    if not VT12.get_etat() and liste_flux[14].get_etat() and liste_flux[15].get_etat():
+        liste_flux[14].eteindre2()
+        liste_flux[15].eteindre2()
             
-    if VT23.get_etat():
-        liste_flux[16].allumer()
-        liste_flux[17].allumer()
+    if VT23.get_etat() and (not Tank3.get_etat() or not Tank2.get_etat()):
+        liste_flux[16].allumer2()
+        liste_flux[17].allumer2()
         
         if not Tank2.get_etat() and Tank3.get_etat():
             Tank2.remplir()
@@ -275,9 +299,9 @@ def allumer_vanne():
         elif not Tank3.get_etat() and Tank2.get_etat():
             Tank3.remplir()
     
-    else:
-        liste_flux[16].eteindre()
-        liste_flux[17].eteindre()
+    if not VT23.get_etat() and liste_flux[16].get_etat() and liste_flux[17].get_etat():
+        liste_flux[16].eteindre2()
+        liste_flux[17].eteindre2()
 
 
 def checkM1():  
@@ -287,7 +311,8 @@ def checkM1():
                 liste_flux[0].allumer()
                 liste_flux[1].allumer()
                 liste_flux[2].allumer()
-                print("1 M1")
+                if debug_mode:
+                    print("1 M1")
                 M1.allumer()
                 return
             elif P11.get_etat() == -1:
@@ -295,7 +320,8 @@ def checkM1():
                     liste_flux[0].allumer()
                     liste_flux[1].allumer()
                     liste_flux[2].allumer()
-                    print("2 M1")
+                    if debug_mode:
+                        print("2 M1")
                     M1.allumer()
                     P12.set_alimente("M1")
                     return
@@ -305,7 +331,8 @@ def checkM1():
                 liste_flux[11].allumer()
                 liste_flux[10].allumer()
                 liste_flux[2].allumer()
-                print("3 M1")
+                if debug_mode:
+                    print("3 M1")
                 M1.allumer()
                 P22.set_alimente("M1")
                 return
@@ -316,7 +343,8 @@ def checkM1():
                 liste_flux[8].allumer()
                 liste_flux[1].allumer()
                 liste_flux[2].allumer()
-                print("4 M1")
+                if debug_mode:
+                    print("4 M1")
                 M1.allumer()
                 P32.set_alimente("M1")
                 return
@@ -328,14 +356,16 @@ def checkM2():
             if P21.get_etat() == 1:
                 liste_flux[3].allumer()
                 liste_flux[4].allumer()
-                print("1 M2")
+                if debug_mode:
+                    print("1 M2")
                 M2.allumer()
                 return
             elif P21.get_etat() == -1:
                 if P22.get_etat() == 1 and P22.get_alimente()== None:
                     liste_flux[3].allumer()
                     liste_flux[4].allumer()
-                    print("2 M2")
+                    if debug_mode:
+                        print("2 M2")
                     M2.allumer()
                     P22.set_alimente("M2")
                     return
@@ -346,7 +376,8 @@ def checkM2():
                 liste_flux[10].allumer()
                 liste_flux[11].allumer()
                 liste_flux[4].allumer()
-                print("3 M2")
+                if debug_mode:
+                    print("3 M2")
                 M2.allumer()
                 P12.set_alimente("M2")
                 return
@@ -357,7 +388,8 @@ def checkM2():
                 liste_flux[13].allumer()
                 liste_flux[12].allumer()
                 liste_flux[4].allumer()
-                print("4 M2")
+                if debug_mode:
+                    print("4 M2")
                 M2.allumer()
                 P32.set_alimente("M2")
                 return
@@ -371,7 +403,8 @@ def checkM3():
                 liste_flux[6].allumer()
                 liste_flux[7].allumer()
                 M3.allumer()
-                print("1 M3")
+                if debug_mode:
+                    print("1 M3")
                 return
             elif P31.get_etat() == -1:
                 if P32.get_etat()== 1 and P32.get_alimente()== None:
@@ -380,7 +413,8 @@ def checkM3():
                     liste_flux[7].allumer()
                     M3.allumer()
                     P32.set_alimente("M3")
-                    print("2 M3")
+                    if debug_mode:
+                        print("2 M3")
                     return
         if Tank1.get_etat():
             if P12.get_etat() == 1 and V13.get_etat() and P12.get_alimente() == None:
@@ -391,7 +425,8 @@ def checkM3():
                 liste_flux[7].allumer()
                 M3.allumer()
                 P12.set_alimente("M3")
-                print("3 M3")
+                if debug_mode:
+                    print("3 M3")
                 return
         if Tank2.get_etat():
             if P22.get_etat() == 1 and V23.get_etat() and P22.get_alimente() == None:
@@ -401,7 +436,8 @@ def checkM3():
                 liste_flux[7].allumer()
                 M3.allumer()
                 P22.set_alimente("M3")
-                print("4")
+                if debug_mode:
+                    print("4")
                 return
 
 
