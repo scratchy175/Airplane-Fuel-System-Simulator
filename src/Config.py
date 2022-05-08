@@ -1,7 +1,7 @@
 
 
 #permet de contourner la fenetre de connexion
-admin_mode = False
+admin_mode = True
 
 #permet de print differentes informations sur la console
 debug_mode = True
