@@ -1,8 +1,24 @@
-from Composants import *
 
-admin_mode = True
-debug_mode = False
-nb_series = 2
+
+#permet de contourner la fenetre de connexion
+admin_mode = False
+
+#permet de print differentes informations sur la console
+debug_mode = True
+
+#permet de generer les pannes a la main
+practice_mode = False
+
+#nombre de series de pannes a résoudre
+nb_series = 3
+
+#dictionnaire contenant toutes les coordonnés de chaque composant a crée
+#P = Polygone
+#C = Cercle
+#L = Flux
+#T = Texte
+#R = Rectangle
+#R2 = Rectangle secondaire
 dico = {"Tank1":{"P":(25, 180, 25, 90, 145, 30, 145, 180),"T":(90,110),"R2":(50, 130, 145, 180)},
         "Tank2":{"R":(240, 30, 360, 180),"T":(300,110),"R2":(250, 130, 350, 180)},
         "Tank3":{"P":(575, 180, 575, 90, 455, 30, 455, 180),"T":(510,110),"R2":(455, 130, 550, 180)},
