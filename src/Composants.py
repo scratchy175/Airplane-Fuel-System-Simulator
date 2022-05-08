@@ -1,5 +1,4 @@
 from Config import *
-
 import math
 from tkinter import *
 
@@ -19,8 +18,9 @@ class Composant(object):
 
 # Classe permettant de créer un Tank
 class Tank(Composant): #hérite de la classe Composant
-    def __init__(self,canvas,nom,points,color):
+    def __init__(self,canvas,nom,points,color,practice_mode):
         Composant.__init__(self,canvas,nom,points)
+        self.practice_mode = practice_mode
         self.color = color
         self.etat = 1
         if self.nom == "Tank2": #permet de créer le Tank2 n'etant pas un polygone comme Tank1 et Tank3
@@ -127,10 +127,11 @@ class Vanne(Composant): #hérite de la classe Composant
 
 # Classe permettant de créer une pompe
 class Pompe(Composant): #hérite de la classe Composant
-    def __init__(self,canvas,frame,nom,points,nature="Normal"):
+    def __init__(self,canvas,practice_mode,frame,nom,points,nature="Normal"):
         Composant.__init__(self,canvas,nom,points)
         self.frame = frame
         self.nature = nature
+        self.practice_mode = practice_mode
         #affichage graphique de la pompe
         self.cercle = self.canvas.create_oval(self.points["C"],fill="Black")
         self.text = self.canvas.create_text(self.points["T"], text=self.nom, fill="White", font=("Arial",15,'bold'))

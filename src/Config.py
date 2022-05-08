@@ -1,16 +1,14 @@
 
 
 #permet de contourner la fenetre de connexion
-admin_mode = True
+admin_mode = False
 
 #permet de print differentes informations sur la console
-debug_mode = True
+debug_mode = False
 
-#permet de generer les pannes a la main
-practice_mode = False
 
 #nombre de series de pannes a résoudre
-nb_series = 3
+nb_series = 10
 
 #dictionnaire contenant toutes les coordonnés de chaque composant a crée
 #P = Polygone

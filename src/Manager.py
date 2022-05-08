@@ -7,18 +7,18 @@ import random
 
 
 #fonction qui permet de créer le systeme, de l'initialiser et demarrer l'exercice
-def set_systeme(window,username,canvas,frame,frame2,frame3):
+def set_systeme(window,username,canvas,frame,frame2,frame3,practice_mode):
     global Tank1,Tank2,Tank3,P11,P12,P21,P22,P31,P32,VT12,VT23,V12,V13,V23,M1,M2,M3
     global liste_flux,liste_pompe,liste_tank,liste_vanne,liste_moteur
-    Tank1 = Tank(canvas,"Tank1",dico,"Orange")
-    Tank2 = Tank(canvas,"Tank2",dico,"DarkGreen")
-    Tank3 = Tank(canvas,"Tank3",dico,"Yellow")
-    P11 = Pompe(canvas,frame2,"P11",dico,"Normal")
-    P12 = Pompe(canvas,frame2,"P12",dico,"Secours")
-    P21 = Pompe(canvas,frame2,"P21",dico,"Normal")
-    P22 = Pompe(canvas,frame2,"P22",dico,"Secours")
-    P31 = Pompe(canvas,frame2,"P31",dico,"Normal")
-    P32 = Pompe(canvas,frame2,"P32",dico,"Secours")
+    Tank1 = Tank(canvas,"Tank1",dico,"Orange",practice_mode)
+    Tank2 = Tank(canvas,"Tank2",dico,"DarkGreen",practice_mode)
+    Tank3 = Tank(canvas,"Tank3",dico,"Yellow",practice_mode)
+    P11 = Pompe(canvas,practice_mode,frame2,"P11",dico,"Normal")
+    P12 = Pompe(canvas,practice_mode,frame2,"P12",dico,"Secours")
+    P21 = Pompe(canvas,practice_mode,frame2,"P21",dico,"Normal")
+    P22 = Pompe(canvas,practice_mode,frame2,"P22",dico,"Secours")
+    P31 = Pompe(canvas,practice_mode,frame2,"P31",dico,"Normal")
+    P32 = Pompe(canvas,practice_mode,frame2,"P32",dico,"Secours")
     VT12 = Vanne(canvas,frame,"VT12",dico)
     VT23 = Vanne(canvas,frame,"VT23",dico)
     V12 = Vanne(canvas,frame3,"V12",dico)
@@ -39,15 +39,15 @@ def set_systeme(window,username,canvas,frame,frame2,frame3):
     score = 0
     if not practice_mode:
         genere_panne(liste_tank,liste_pompe) #genere une serie panne aléatoire
-    window.after(500, lambda: boucle(window,username,compteur,score)) # permet de debuter la boucle
+    window.after(500, lambda: boucle(window,username,compteur,score,practice_mode)) # permet de debuter la boucle
 
 
 #fontion de la boucle principale
-def boucle (window,username,compteur,score):
+def boucle (window,username,compteur,score,practice_mode):
     if practice_mode:
         eteindre_flux_moteur_pratice()
         checking() 
-        window.after(500, boucle, window,username,compteur,score)
+        window.after(500, boucle, window,username,compteur,score,practice_mode)
     else:
         if compteur != nb_series: #on verifie que le compteur est inferieur au nombre de series de pannes
             if M1.get_etat() and M2.get_etat() and M3.get_etat(): #on verifie que les moteurs sont allumes(le pilote a resolu la pannne correctement ou non)
@@ -57,10 +57,10 @@ def boucle (window,username,compteur,score):
                 genere_panne(liste_tank,liste_pompe)
                 if debug_mode:
                     print(score)
-                window.after(500, boucle, window,username,compteur, score)
+                window.after(500, boucle, window,username,compteur, score,practice_mode)
             else:
                 checking()
-                window.after(500, boucle, window,username,compteur,score)
+                window.after(500, boucle, window,username,compteur,score,practice_mode)
         else:
             end(window,username,score)
 

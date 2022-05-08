@@ -1,4 +1,3 @@
-from turtle import pen
 from Config import *
 from Composants import *
 from Manager import *
@@ -9,7 +8,7 @@ import os
 
 
 is_on = False
-
+practice_mode = False
 
 
 #fonction permettant d'afficher une fenêtre de connexion a l'aide de tkinter et de l'interface graphique 
@@ -76,6 +75,7 @@ def switch(practice_button):
     global is_on
     if is_on:
         practice_button.config(image=practice_off)
+        global practice_mode
         practice_mode = False
         is_on=False    
     else:
@@ -164,5 +164,6 @@ def create_window():
     if admin_mode: 
         set_systeme(window,None,canvas,frame,frame2,frame3)
     else:
-        set_systeme(window,connexion_username,canvas,frame,frame2,frame3)
+        set_systeme(window,connexion_username,canvas,frame,frame2,frame3,practice_mode)
     window.mainloop()
+
