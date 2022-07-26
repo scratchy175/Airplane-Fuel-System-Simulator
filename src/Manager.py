@@ -31,7 +31,7 @@ def set_systeme(window,username,canvas,frame,frame2,frame3,practice_mode):
     liste_pompe = [P11,P12,P21,P22,P31,P32]
     liste_vanne = [VT12,VT23,V12,V13,V23]
     liste_moteur = [M1,M2,M3]
-    liste_flux = [Flux(canvas,"L"+str(i),dico) for i in range(0,len(dico["F"]))]
+    liste_flux = [Flux(canvas, f"L{str(i)}", dico) for i in range(len(dico["F"]))]
     for i in range(8):
         liste_flux[i].allumer()
 
@@ -43,26 +43,25 @@ def set_systeme(window,username,canvas,frame,frame2,frame3,practice_mode):
 
 
 #fontion de la boucle principale
-def boucle (window,username,compteur,score,practice_mode):
+def boucle(window,username,compteur,score,practice_mode):
     if practice_mode:
         eteindre_flux_moteur_pratice()
         checking() 
         window.after(500, boucle, window,username,compteur,score,practice_mode)
-    else:
-        if compteur != nb_series: #on verifie que le compteur est inferieur au nombre de series de pannes
-            if M1.get_etat() and M2.get_etat() and M3.get_etat(): #on verifie que les moteurs sont allumes(le pilote a resolu la pannne correctement ou non)
-                compteur+=1
-                score += resolution()
-                reset(liste_tank,liste_pompe,liste_moteur,liste_vanne,liste_flux)
-                genere_panne(liste_tank,liste_pompe)
-                if debug_mode:
-                    print(score)
-                window.after(500, boucle, window,username,compteur, score,practice_mode)
-            else:
-                checking()
-                window.after(500, boucle, window,username,compteur,score,practice_mode)
+    elif compteur == nb_series:
+        end(window,username,score)
+
+    else: #on verifie que le compteur est inferieur au nombre de series de pannes
+        if M1.get_etat() and M2.get_etat() and M3.get_etat(): #on verifie que les moteurs sont allumes(le pilote a resolu la pannne correctement ou non)
+            compteur+=1
+            score += resolution()
+            reset(liste_tank,liste_pompe,liste_moteur,liste_vanne,liste_flux)
+            genere_panne(liste_tank,liste_pompe)
+            if debug_mode:
+                print(score)
         else:
-            end(window,username,score)
+            checking()
+        window.after(500, boucle, window,username,compteur, score,practice_mode)
 
 
 #permet de regrouper toutes les fonctions necessaires au bon deroulement de l'entrainement
@@ -121,12 +120,12 @@ def allumer_vanne():
 def genere_panne(liste_tank,liste_pompe):
     rand_tank = random.randint(1,2) #nombre de tanks qui seront en panne
     rand_pompe = random.randint(1,3) #nombre de pompes qui seront en panne
-    liste_panne = random.sample(range(0,len(liste_pompe)-1),rand_pompe)
+    liste_panne = random.sample(range(len(liste_pompe)-1), rand_pompe)
     for val in liste_panne: #on met les pompes en panne
         liste_pompe[val].en_panne(event=None)
         if debug_mode:
             print(liste_pompe[val].get_name())
-    liste_panne2 = random.sample(range(0,len(liste_tank)-1),rand_tank)
+    liste_panne2 = random.sample(range(len(liste_tank)-1), rand_tank)
     for val in liste_panne2: #on met les tanks en panne
         liste_tank[val].vider()
         if debug_mode:

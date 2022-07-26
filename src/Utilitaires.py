@@ -6,30 +6,32 @@ from tkinter import *
 def end(window,username,score):
     #si le mode admin est activé on affiche le score sinon on stocke le score et on demande au pilote si il veut voir son historique
     if username: 
-            file = open("Users/" + str(username) + ".txt", "a") #on ouvre le fichier en mode ajout
+        with open(f"Users/{str(username)}.txt", "a") as file:
             file.write(datetime.now().strftime("%d/%m/%Y %H:%M")+ " : " + str(score) +"\n") #on ecrit le score dans le fichier
-            file.close()
-            reponse = messagebox.askyesno("Fin de la partie","Voulez-vous voir votre historique complet?") #on demande a l'utilisateur si il veut voir son historique
-            if reponse:
-                window.destroy() #on detruit les fenetres
-                file = open("Users/" + str(username) + ".txt", "r") #on ouvre le fichier en mode lecture
-                next(file) #on passe la premiere ligne
-                window_end = Tk() #on cree une fenetre pour afficher l'historique
-                window_end.iconbitmap("images/plane.ico")
-                window_end.title("Historique")
-                text = Text(window_end,bg="#2d2d2d",fg="White", font="Roboto 15", width=30) #on cree une zone de texte pour afficher l'historique
-                text.pack(expand=True, fill=BOTH)
-                text.insert(END, file.read()) 
-                text.config(state='disabled')
-                file.close()
-                window_end.mainloop()
-            else:
-                
-                messagebox.showinfo("Fin de la partie", "Bravo ! Votre score est de {0} points".format(score)) #on affiche le score 
-                window.destroy()
+        if reponse := messagebox.askyesno("Fin de la partie", "Voulez-vous voir votre historique complet?"):
+            window.destroy() #on detruit les fenetres
+            with open(f"Users/{str(username)}.txt", "r") as file:
+                window_end = resultf(file)
+            window_end.mainloop()
+        else:
+            messagebox.showinfo("Fin de la partie", "Bravo ! Votre score est de {0} points".format(score)) #on affiche le score 
+            window.destroy()
     else:
         messagebox.showinfo("Fin de la partie", "Bravo ! Votre score est de {0} points.".format(score)) 
         window.destroy()
+
+
+# TODO Rename this here and in `end`
+def resultf(file):
+    next(file) #on passe la premiere ligne
+    result = Tk()
+    result.iconbitmap("images/plane.ico")
+    result.title("Historique")
+    text = Text(result, bg="#2d2d2d", fg="White", font="Roboto 15", width=30)
+    text.pack(expand=True, fill=BOTH)
+    text.insert(END, file.read())
+    text.config(state='disabled')
+    return result
 
 
 

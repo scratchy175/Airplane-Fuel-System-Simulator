@@ -68,8 +68,8 @@ class Vanne(Composant): #hérite de la classe Composant
         self.counter = 1
 
         #création du bouton de la vanne
-        self.image_off = PhotoImage(file="images/" + self.nom + "_off.png")
-        self.image_on = PhotoImage(file="images/" + self.nom + "_on.png")
+        self.image_off = PhotoImage(file=f"images/{self.nom}_off.png")
+        self.image_on = PhotoImage(file=f"images/{self.nom}_on.png")
         self.button = Button(self.frame, text=self.nom,image=self.image_off, borderwidth=0, bg="#202124",activebackground="#202124", command=self.change_etat)
         self.button.pack(side=LEFT,expand=True)
         
@@ -98,15 +98,13 @@ class Vanne(Composant): #hérite de la classe Composant
             y_old -= cy
             x_new = x_old * cos_val - y_old * sin_val
             y_new = x_old * sin_val + y_old * cos_val
-            new_points.append(x_new + cx)
-            new_points.append(y_new + cy)
+            new_points.extend((x_new + cx, y_new + cy))
         return new_points
 
     def rt(self,mode=None): #permet de faire une rotation de la vanne
-        if mode == "reset":
-            if self.etat == 0:
-                self.new_square = self.rotation(self.points["P2"], -self.counter, self.centre)
-                return
+        if mode == "reset" and self.etat == 0:
+            self.new_square = self.rotation(self.points["P2"], -self.counter, self.centre)
+            return
         if self.etat == 1:
             self.new_square = self.rotation(self.points["P2"], self.counter, self.centre)
         elif self.etat == 0:
@@ -138,15 +136,15 @@ class Pompe(Composant): #hérite de la classe Composant
         if practice_mode: #si on est en mode pratique, permet de generer une panne de pompe manuellement
             self.canvas.tag_bind(self.text, "<Button-1>", self.en_panne)
             self.canvas.tag_bind(self.cercle, "<Button-1>", self.en_panne)
-    
-        
+
+
         if self.nature == "Secours": #si la pompe est une pompe de secours, on crée un bouton pour l'activer
             self.alimente = None
-            self.image_off = PhotoImage(file="images/" + self.nom + "_off.png")
-            self.image_on = PhotoImage(file="images/" + self.nom + "_on.png")
+            self.image_off = PhotoImage(file=f"images/{self.nom}_off.png")
+            self.image_on = PhotoImage(file=f"images/{self.nom}_on.png")
             self.button = Button(self.frame, text=self.nom,image=self.image_off, borderwidth=0, bg="#202124",activebackground="#202124", command=self.change_etat)
             self.button.pack(side=LEFT,expand=True,fill=BOTH)
-        
+
         elif self.nature == "Normal": #si la pompe est une pompe normale, on l'allume par défaut
             self.allumer()
 
@@ -186,7 +184,7 @@ class Pompe(Composant): #hérite de la classe Composant
 
     #permet de mettre la pompe en panne
     def en_panne(self,event):
-        if self.etat == 0 or self.etat == 1:
+        if self.etat in [0, 1]:
             if self.nature == "Secours":
                 self.button.config(state=DISABLED)
             self.canvas.itemconfig(self.cercle, fill="Orange")

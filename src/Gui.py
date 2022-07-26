@@ -94,15 +94,14 @@ def connexion(event):
     password_entry.delete(0, END)
     if os.path.isdir("Users"): #vérification de l'existence du dossier Users
         liste_files = os.listdir("Users") #récupération de la liste des fichiers
-        if connexion_username and connexion_password: #vérification de l'existence des entrées
-            if str(connexion_username) + ".txt" in liste_files: #vérification de l'existence du fichier
-                file = open("Users/" + str(connexion_username) + ".txt", "r") #ouverture du fichier
-                lines = file.readline().split(":") #récupération des lignes
-                if lines[1].strip("\n") == str(connexion_password): #vérification du mot de passe
-                    logged = Label(root, text="Connexion réussie.", fg="green",bg="#2d2d2d", font=("Arial",10)) #affichage du message de connexion
-                    logged.place(x=100, y=400)
-                    root.after(500, lambda: create_window()) #lancement de la fenêtre de simulation
-                    return
+        if connexion_username and connexion_password and f"{str(connexion_username)}.txt" in liste_files:
+            file = open(f"Users/{str(connexion_username)}.txt", "r")
+            lines = file.readline().split(":") #récupération des lignes
+            if lines[1].strip("\n") == str(connexion_password): #vérification du mot de passe
+                logged = Label(root, text="Connexion réussie.", fg="green",bg="#2d2d2d", font=("Arial",10)) #affichage du message de connexion
+                logged.place(x=100, y=400)
+                root.after(500, lambda: create_window()) #lancement de la fenêtre de simulation
+                return
     login_error = Label(root, text="Nom d'utilisateur ou mot de passe incorrect.", fg="red",bg="#2d2d2d", font=("Arial",10)) #affichage du message d'erreur
     login_error.place(x=100, y=400)
     login_error.after(1000, login_error.destroy) #suppression du message d'erreur
@@ -119,21 +118,21 @@ def inscription():
         os.mkdir("Users") #création du dossier Users
     liste_files = os.listdir("Users")
     if inscription_username and inscription_password:
-        if not str(inscription_username) + ".txt" in liste_files:
-            file = open("Users/" + str(inscription_username) + ".txt", "w") #création du fichier
-            file.write("Mot de passe:" + str(inscription_password)+"\n") #écriture du mot de passe
-            file.close()
-            sucess = Label(root, text="Inscription réussie.", fg="green",bg="#2d2d2d", font=("Arial",10)) #affichage du message d'inscription
-            sucess.place(x=100, y=400)
-            sucess.after(1000, sucess.destroy)
+        if f"{str(inscription_username)}.txt" not in liste_files:
+            with open(f"Users/{str(inscription_username)}.txt", "w") as file:
+                file.write(f"Mot de passe:{str(inscription_password)}" + "\n")
+            loginresponse("Inscription réussie.", "green")
         else:
-            already_used = Label(root, text="Ce nom d'utilisateur est déjà utilisé.", fg="red",bg="#2d2d2d", font=("Arial",10)) #affichage du message d'erreur
-            already_used.place(x=100, y=400)
-            already_used.after(1000, already_used.destroy)
+            loginresponse("Ce nom d'utilisateur est déjà utilisé.", "red")
     else:
-        entry_empty = Label(root, text="Veuillez remplir tous les champs.", fg="red",bg="#2d2d2d", font=("Arial",10)) #affichage du message d'erreur
-        entry_empty.place(x=100, y=400)
-        entry_empty.after(1000, entry_empty.destroy)
+        loginresponse("Veuillez remplir tous les champs.", "red")
+
+
+# TODO Rename this here and in `inscription`
+def loginresponse(text, fg):
+    sucess = Label(root, text=text, fg=fg, bg="#2d2d2d", font=("Arial",10))
+    sucess.place(x=100, y=400)
+    sucess.after(1000, sucess.destroy)
 
 
 
@@ -143,9 +142,8 @@ def create_window():
         root.destroy()
     #création de la fenêtre contenant les bouttons
     window = Tk()
-    window.title("Tableau de bord du pilote")
-    window.geometry("500x300+300+300")
-    window.iconbitmap("images/plane.ico")
+    configgui(window, "Tableau de bord du pilote", "500x300+300+300")
+
     frame = Frame(window, bg="#202124")
     frame.pack(side= TOP, expand=True, fill=BOTH)
     frame2 = Frame(window, bg="#202124")
@@ -154,9 +152,8 @@ def create_window():
     frame3.pack(side= TOP, expand=True, fill=BOTH)
     #création de la fenêtre contenant le système de carburant
     window2 = Toplevel(window)
-    window2.title("Etat du système de carburant")
-    window2.geometry("600x600+1500+250")
-    window2.iconbitmap("images/plane.ico")
+    configgui(window2, "Etat du système de carburant", "600x600+1500+250")
+
     canvas = Canvas(window2, width=600, height=600, bg="#0269A4")
     canvas.pack(expand=True)
 
@@ -166,4 +163,10 @@ def create_window():
     else:
         set_systeme(window,connexion_username,canvas,frame,frame2,frame3,practice_mode)
     window.mainloop()
+
+
+def configgui(arg0, arg1, arg2):
+    arg0.title(arg1)
+    arg0.geometry(arg2)
+    arg0.iconbitmap("images/plane.ico")
 
